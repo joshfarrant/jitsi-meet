@@ -1,6 +1,6 @@
 /* global __dirname */
 
-const HasteResolverPlugin = require('haste-resolver-webpack-plugin');
+// const HasteResolverPlugin = require('haste-resolver-webpack-plugin');
 const process = require('process');
 const webpack = require('webpack');
 
@@ -18,9 +18,11 @@ const minimize
         || process.argv.indexOf('--optimize-minimize') !== -1;
 const node_modules = __dirname + '/node_modules/';
 const plugins = [
-    new HasteResolverPlugin()
+    // new HasteResolverPlugin()
 ];
 const strophe = /\/node_modules\/strophe(js-plugins)?\/.*\.js$/;
+
+const PROD = process.env.NODE_ENV === 'production';
 
 if (minimize) {
     // XXX Webpack's command line argument -p is not enough. Further
@@ -64,7 +66,7 @@ const config = {
             }
         }
     },
-    devtool: 'source-map',
+    devtool: PROD ? 'source-map' : 'eval',
     module: {
         loaders: [ {
             // Transpile ES2015 (aka ES6) to ES5. Accept the JSX syntax by React
@@ -121,12 +123,6 @@ const config = {
                 name: '[path][name].[ext]'
             },
             test: /\.(gif|png|svg)$/
-        }, {
-            // Enable the import of JSON files.
-
-            loader: 'json-loader',
-            exclude: node_modules,
-            test: /\.json$/
         } ],
         noParse: [
 
@@ -147,14 +143,16 @@ const config = {
         libraryTarget: 'umd',
         path: __dirname + '/build',
         publicPath: '/libs/',
-        sourceMapFilename: '[name].' + (minimize ? 'min' : 'js') + '.map'
+        sourceMapFilename: '[name].' + (minimize ? 'min' : 'js') + '.map',
+        pathinfo: true
     },
     plugins: plugins,
     resolve: {
         alias: {
             jquery: 'jquery/dist/jquery' + (minimize ? '.min' : '') + '.js'
         },
-        packageAlias: 'browser'
+        aliasFields: ['browser'],
+        extensions: ['.web.js', '.js', '.json']
     }
 };
 
