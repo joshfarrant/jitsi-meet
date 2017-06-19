@@ -22,7 +22,7 @@ export class AbstractWelcomePage extends Component {
         _localVideoTrack: React.PropTypes.object,
         _room: React.PropTypes.string,
         dispatch: React.PropTypes.func
-    }
+    };
 
     /**
      * Initializes a new AbstractWelcomePage instance, including the initial
@@ -97,11 +97,11 @@ export class AbstractWelcomePage extends Component {
         if (word.length > 1) {
             animateTimeoutId
                 = setTimeout(
-                        () => {
-                            this._animateRoomnameChanging(
-                                    word.substring(1, word.length));
-                        },
-                        70);
+                    () => {
+                        this._animateRoomnameChanging(
+                            word.substring(1, word.length));
+                    },
+                    70);
         }
 
         this.setState({

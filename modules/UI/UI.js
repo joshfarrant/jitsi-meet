@@ -8,6 +8,8 @@ import Chat from "./side_pannels/chat/Chat";
 import SidePanels from "./side_pannels/SidePanels";
 import Avatar from "./avatar/Avatar";
 import SideContainerToggler from "./side_pannels/SideContainerToggler";
+import JitsiPopover from "./util/JitsiPopover";
+import messageHandler from "./util/MessageHandler";
 import UIUtil from "./util/UIUtil";
 import UIEvents from "../../service/UI/UIEvents";
 import EtherpadManager from './etherpad/Etherpad';
@@ -19,18 +21,11 @@ import Filmstrip from "./videolayout/Filmstrip";
 import SettingsMenu from "./side_pannels/settings/SettingsMenu";
 import Profile from "./side_pannels/profile/Profile";
 import Settings from "./../settings/Settings";
-import RingOverlay from "./ring_overlay/RingOverlay";
-import UIErrors from './UIErrors';
+import { FEEDBACK_REQUEST_IN_PROGRESS } from './UIErrors';
 import { debounce } from "../util/helpers";
 
-
-import {
-    updateDeviceList
-} from '../../react/features/base/devices';
-import {
-    setAudioMuted,
-    setVideoMuted
-} from '../../react/features/base/media';
+import { updateDeviceList } from '../../react/features/base/devices';
+import { setAudioMuted, setVideoMuted } from '../../react/features/base/media';
 import {
     openDeviceSelectionDialog
 } from '../../react/features/device-selection';
@@ -48,9 +43,7 @@ import {
 } from '../../react/features/toolbox';
 
 var EventEmitter = require("events");
-UI.messageHandler = require("./util/MessageHandler");
-var messageHandler = UI.messageHandler;
-var JitsiPopover = require("./util/JitsiPopover");
+UI.messageHandler = messageHandler;
 import Feedback from "./feedback/Feedback";
 import FollowMe from "../FollowMe";
 
@@ -368,10 +361,6 @@ UI.start = function () {
             "closeHtml": '<button type="button" tabIndex="-1">&times;</button>'
         };
     }
-
-    const { callee } = APP.store.getState()['features/jwt'];
-
-    callee && UI.showRingOverlay();
 };
 
 /**
@@ -492,7 +481,7 @@ UI.getSharedDocumentManager = () => etherpadManager;
 UI.addUser = function (user) {
     var id = user.getId();
     var displayName = user.getDisplayName();
-    UI.hideRingOverlay();
+
     if (UI.ContactList)
         UI.ContactList.addContact(id);
 
@@ -1044,7 +1033,7 @@ UI.updateDTMFSupport
  */
 UI.requestFeedbackOnHangup = function () {
     if (Feedback.isVisible())
-        return Promise.reject(UIErrors.FEEDBACK_REQUEST_IN_PROGRESS);
+        return Promise.reject(FEEDBACK_REQUEST_IN_PROGRESS);
     // Feedback has been submitted already.
     else if (Feedback.isEnabled() && Feedback.isSubmitted()) {
         return Promise.resolve({
@@ -1371,17 +1360,6 @@ UI.setCameraButtonEnabled
 UI.setMicrophoneButtonEnabled
     = enabled => APP.store.dispatch(setAudioIconEnabled(enabled));
 
-UI.showRingOverlay = function () {
-    const { callee } = APP.store.getState()['features/jwt'];
-
-    callee && RingOverlay.show(callee, interfaceConfig.DISABLE_RINGING);
-
-    Filmstrip.toggleFilmstrip(false, false);
-};
-
-UI.hideRingOverlay
-    = () => RingOverlay.hide() && Filmstrip.toggleFilmstrip(true, false);
-
 /**
  * Indicates if any the "top" overlays are currently visible. The check includes
  * the call/ring overlay, the suspended overlay, the GUM permissions overlay,
@@ -1390,15 +1368,10 @@ UI.hideRingOverlay
  * @returns {*|boolean} {true} if an overlay is visible; {false}, otherwise
  */
 UI.isOverlayVisible = function () {
-    return this.isRingOverlayVisible() || this.overlayVisible;
+    return (
+        this.overlayVisible
+            || APP.store.getState()['features/jwt'].callOverlayVisible);
 };
-
-/**
- * Indicates if the ring overlay is currently visible.
- *
- * @returns {*|boolean} {true} if the ring overlay is visible, {false} otherwise
- */
-UI.isRingOverlayVisible = () => RingOverlay.isVisible();
 
 /**
  * Handles user's features changes.
@@ -1470,4 +1443,6 @@ const UIListeners = new Map([
     ]
 ]);
 
-module.exports = UI;
+// TODO: Export every function separately. For now there is no point of doing
+// this because we are importing everything.
+export default UI;

@@ -19,7 +19,7 @@
     "@atlaskit/button": "1.0.3",
     "@atlaskit/button-group": "1.0.0",
     "@atlaskit/dropdown-menu": "1.4.0",
-    "@atlaskit/field-text": "2.0.3",
+    "@atlaskit/field-text": "2.7.0",
     "@atlaskit/icon": "6.0.0",
     "@atlaskit/modal-dialog": "1.2.4",
     "@atlaskit/tabs": "1.2.5",
@@ -84,8 +84,7 @@
     "expose-loader": "^0.7.3",
     "file-loader": "^0.11.1",
     "flow-bin": "0.38.0",
-    "haste-resolver-webpack-plugin": "^0.2.2",
-    "imports-loader": "^0.7.1",
+    "imports-loader": "0.7.1",
     "jshint": "2.9.4",
     "node-sass": "3.13.1",
     "precommit-hook": "3.0.0",
@@ -100,9 +99,6 @@
     "validate": "npm ls",
     "start": "webpack-dev-server ./app.js --progress --colors --inline --host 0.0.0.0 --https"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "browser": {
     "aui": "@atlassian/aui/lib/js/aui.js",
     "aui-css": "./node_modules/@atlassian/aui/dist/aui/css/aui.min.css",
